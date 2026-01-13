@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Details - <%= project.name %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css"> 
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; max-width: 900px; }
+    h1 { color: #2c3e50; }
+    .info { margin: 1.5rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; }
+    .label { font-weight: bold; color: #555; }
+    ul { list-style: none; padding: 0; }
+    ul li { margin: 0.5rem 0; padding: 0.5rem; background: #e9ecef; border-radius: 4px; }
+    .actions a, .actions button {
+      padding: 10px 20px;
+      margin-right: 1rem;
+      text-decoration: none;
+      border-radius: 6px;
+      color: white;
+    }
+    .edit-btn { background: #ffc107; color: black; }
+    .back-btn { background: #6c757d; }
+  </style>
+</head>
+<body>
+
+  <h1><%= project.name %></h1>
+
+  <div class="info">
+    <p><span class="label">Description:</span><br><%= project.description || 'No description provided' %></p>
+    
+    <p><span class="label">Price:</span> <%= project.price %> €</p>
+    <p><strong>Completed Jobs / Progress:</strong><br>
+    <%= project.completedJobs || 'No progress description yet' %></p>
+    
+    <p><span class="label">Start date:</span> <%= project.startDate ? new Date(project.startDate).toLocaleDateString() : 'Not set' %></p>
+    <p><span class="label">End date:</span> <%= project.endDate ? new Date(project.endDate).toLocaleDateString() : 'Not set' %></p>
+  </div>
+
+  <h2>Assigned Team Members</h2>
+  <% if (project.members && project.members.length > 0) { %>
+    <ul>
+      <% project.members.forEach(member => { %>
+        <li><%= member.name %> (<%= member.email %>)</li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p style="color: #888; font-style: italic;">No team members assigned to this project yet.</p>
+  <% } %>
+
+  <div class="actions" style="margin-top: 2.5rem;">
+    <a href="/projects/<%= project._id %>/edit" class="edit-btn">Edit Project</a>
+    <a href="/projects" class="back-btn">Back to All Projects</a>
+  </div>
+
+</body>
+</html>

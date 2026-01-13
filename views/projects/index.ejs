@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Projects</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 2rem; 
+    }
+    h1 { color: #2c3e50; }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 1.5rem; 
+    }
+    th, td { 
+      padding: 12px; 
+      text-align: left; 
+      border-bottom: 1px solid #ddd; 
+    }
+    th { 
+      background: #f8f9fa; 
+      font-weight: bold; 
+    }
+    tr:hover { background: #f1f3f5; }
+    .actions a, .actions button {
+      padding: 6px 12px;
+      margin-right: 0.5rem;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    .details { background: #007bff; color: white; }
+    .edit { background: #ffc107; color: black; }
+    .delete { background: #dc3545; color: white; border: none; cursor: pointer; }
+    .add-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #28a745;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>My Projects</h1>
+
+  <a href="/projects/new" class="add-btn">+ Add New Project</a>
+
+  <% if (projects && projects.length > 0) { %>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Price (€)</th>
+          <th>Progress / Completed Jobs</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Members</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% projects.forEach(project => { %>
+          <tr>
+            <td><%= project.name %></td>
+            <td><%= project.price %></td>
+            <td>
+              <% if (typeof project.completedJobs === 'string') { %>
+                <%= project.completedJobs.substring(0, 60) %><%= project.completedJobs.length > 60 ? '...' : '' %>
+              <% } else { %>
+                <%= project.completedJobs || 'Not started' %>
+              <% } %>
+            </td>
+            <td><%= project.startDate ? new Date(project.startDate).toLocaleDateString() : '—' %></td>
+            <td><%= project.endDate ? new Date(project.endDate).toLocaleDateString() : '—' %></td>
+            <td><%= project.members ? project.members.length : 0 %></td>
+            <td class="actions">
+              <a href="/projects/<%= project._id %>" class="details">Details</a>
+              <a href="/projects/<%= project._id %>/edit" class="edit">Edit</a>
+              <form action="/projects/<%= project._id %>?_method=DELETE" method="POST" style="display:inline;">
+                <button type="submit" class="delete" onclick="return confirm('Are you sure you want to delete this project?')">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p style="color: #666; font-style: italic; margin-top: 2rem;">
+      No projects created yet. <a href="/projects/new">Create your first project</a>.
+    </p>
+  <% } %>
+
+</body>
+</html>
