@@ -4,6 +4,10 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+const session = require('mongoose-session')(require('mongoose'));
+const passport = require('passport');
+const flash = require('connect-flash');
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
@@ -17,7 +21,26 @@ mongoose.connect('mongodb://127.0.0.1:27017/projectsDB')
 
 const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
-app.use(express.urlencoded({ extended: true })); // instead of body-parser now
+app.use(express.urlencoded({ extended: true })); 
+
+app.use(session({
+  secret: 'your-secret-key-here',  
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  res.locals.error = req.flash('error');
+  res.locals.user = req.user || null;
+  next();
+});
 
 const projectRouter = require('./routes/projects');
 app.use('/projects', projectRouter);
