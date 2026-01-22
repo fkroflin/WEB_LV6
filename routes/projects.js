@@ -1,71 +1,130 @@
 const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
-const Member = require('../models/Member');
+const User = require('../models/User');
 
-router.get('/', async (req, res) => {
-  const projects = await Project.find().populate('members');
+function isAuthenticated(req, res, next) {
+  if (req.isAuthenticated && req.isAuthenticated()) return next();
+  res.redirect('/auth/login');
+}
+
+function isLeader(req, project) {
+  return project.leader && project.leader.equals(req.user._id);
+}
+
+function isMember(req, project) {
+  return project.members.some(m => m.equals(req.user._id));
+}
+
+router.get('/', isAuthenticated, async (req, res) => {
+  const projects = await Project.find().populate('leader').populate('members');
   res.render('projects/index', { projects });
 });
 
-router.get('/new', async (req, res) => {
-  const members = await Member.find().sort({ name: 1 });
+router.get('/new', isAuthenticated, async (req, res) => {
+  const members = await User.find();
   res.render('projects/new', { members });
 });
 
-router.post('/', async (req, res) => {
+router.post('/', isAuthenticated, async (req, res) => {
   try {
     const project = new Project(req.body.project);
+    project.leader = req.user._id; 
+
     if (req.body.members) {
-      project.members = Array.isArray(req.body.members) 
-        ? req.body.members 
+      project.members = Array.isArray(req.body.members)
+        ? req.body.members
         : [req.body.members];
+      project.members = project.members.filter(m => m.toString() !== req.user._id.toString());
     }
+
     await project.save();
     res.redirect('/projects');
   } catch (err) {
     console.error(err);
-    res.status(400).send('Error creating project');
-  }
-});
-
-router.get('/:id', async (req, res) => {
-  const project = await Project.findById(req.params.id).populate('members');
-  if (!project) return res.status(404).send('Project not found');
-  res.render('projects/show', { project });
-});
-
-router.get('/:id/edit', async (req, res) => {
-  try {
-    const project = await Project.findById(req.params.id).populate('members');
-    if (!project) {
-      return res.status(404).send('Project not found');
-    }
-    
-    const members = await Member.find().sort({ name: 1 });
-    res.render('projects/edit', { project, members });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
-  }
-});
-
-router.put('/:id', async (req, res) => {
-  try {
-    const project = await Project.findByIdAndUpdate(req.params.id, req.body.project, { new: true });
-    if (req.body.members) {
-      project.members = Array.isArray(req.body.members) ? req.body.members : [req.body.members];
-    } else {
-      project.members = [];
-    }
-    await project.save();
-    res.redirect(`/projects/${req.params.id}`);
-  } catch (err) {
     res.status(400).send(err);
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.get('/:id', isAuthenticated, async (req, res) => {
+  const project = await Project.findById(req.params.id).populate('leader').populate('members');
+  res.render('projects/show', { project });
+});
+
+router.get('/:id/edit', isAuthenticated, async (req, res) => {
+  const project = await Project.findById(req.params.id).populate('members').populate('leader');
+  const members = await User.find();
+  const today = new Date();
+
+  if (project.endDate && project.endDate < today) {
+    req.flash('error_msg', 'Archived projects cannot be edited.');
+    return res.redirect('/projects');
+  }
+
+  if (!isLeader(req, project) && !isMember(req, project)) {
+    req.flash('error_msg', 'You are not authorized to edit this project');
+    return res.redirect('/projects');
+  }
+
+  res.render('projects/edit', { 
+    project, 
+    members, 
+    isLeader: isLeader(req, project), 
+    isMember: isMember(req, project) 
+  });
+});
+
+
+router.put('/:id', isAuthenticated, async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+
+    if (!isLeader(req, project) && !isMember(req, project)) {
+      req.flash('error_msg', 'You are not authorized to edit this project');
+      return res.redirect('/projects');
+    }
+
+    if (isMember(req, project) && !isLeader(req, project)) {
+      project.completedJobs = req.body.project.completedJobs || project.completedJobs;
+    }
+
+    if (isLeader(req, project)) {
+      project.name = req.body.project.name;
+      project.description = req.body.project.description;
+      project.price = req.body.project.price;
+      project.completedJobs = req.body.project.completedJobs;
+      project.startDate = req.body.project.startDate;
+      project.endDate = req.body.project.endDate;
+
+      project.members = req.body.members
+        ? Array.isArray(req.body.members)
+          ? req.body.members
+          : [req.body.members]
+        : [];
+      project.members = project.members.filter(m => m.toString() !== req.user._id.toString());
+    }
+
+    if (project.endDate && project.endDate < new Date()) {
+      req.flash('error_msg', 'Archived projects cannot be edited.');
+      return res.redirect('/projects');
+    }
+
+    await project.save();
+    res.redirect(`/projects/${req.params.id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(400).send(err);
+  }
+});
+
+router.delete('/:id', isAuthenticated, async (req, res) => {
+  const project = await Project.findById(req.params.id);
+
+  if (!isLeader(req, project)) {
+    req.flash('error_msg', 'Only the project leader can delete this project');
+    return res.redirect('/projects');
+  }
+
   await Project.findByIdAndDelete(req.params.id);
   res.redirect('/projects');
 });

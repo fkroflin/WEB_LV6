@@ -3,90 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create New Project</title>
+  <title>New Project</title>
   <link rel="stylesheet" href="/stylesheets/style.css">
   <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; max-width: 900px; }
-    h1 { color: #2c3e50; }
-    label { display: block; margin: 1.5rem 0 0.5rem; font-weight: bold; }
-    input, textarea { width: 100%; padding: 10px; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    textarea { height: 140px; resize: vertical; }
-    .member-checkbox { margin: 0.5rem 0; }
-    .actions { margin-top: 3rem; }
-    button { 
-      padding: 12px 28px; 
-      background: #007bff; 
-      color: white; 
-      border: none; 
-      border-radius: 6px; 
-      font-size: 1.1rem; 
-      cursor: pointer; 
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f8f9fa;
+      color: #333;
     }
-    a { 
-      padding: 12px 28px; 
-      background: #6c757d; 
-      color: white; 
-      text-decoration: none; 
-      border-radius: 6px; 
-      margin-left: 1rem; 
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
     }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin: 1.2rem 0 0.4rem;
+      font-weight: bold;
+      color: #495057;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    textarea {
+      height: 140px;
+      resize: vertical;
+    }
+    .member-checkbox {
+      margin: 0.6rem 0;
+      font-size: 1rem;
+    }
+    button {
+      padding: 14px 32px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #218838;
+    }
+    a.cancel {
+      padding: 14px 32px;
+      background: #6c757d;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin-left: 1rem;
+      font-size: 1.1rem;
+    }
+    .message {
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 6px;
+    }
+    .success { background: #d4edda; color: #155724; }
+    .error   { background: #f8d7da; color: #721c24; }
   </style>
 </head>
 <body>
 
-  <h1>Create New Project</h1>
+  <%- include('../partials/header') %>
 
-  <form action="/projects" method="POST">
+  <div class="container">
+    <h1>Create New Project</h1>
 
-    <label for="name">Project Name</label>
-    <input type="text" id="name" name="project[name]" required placeholder="e.g. Mobile App Development">
-
-    <label for="description">Project Description</label>
-    <textarea id="description" name="project[description]" required placeholder="Overall goals, scope and requirements..."></textarea>
-
-    <label for="price">Project Price (€)</label>
-    <input type="number" id="price" name="project[price]" step="0.01" min="0" required placeholder="e.g. 4500">
-
-    <label for="completedJobs">Completed Jobs / Progress So Far</label>
-    <textarea id="completedJobs" name="project[completedJobs]" 
-              placeholder="Describe what has already been done (e.g. 'Requirements gathered, wireframes approved, first sprint completed' )">Not started yet</textarea>
-
-    <label for="startDate">Start Date</label>
-    <input type="date" id="startDate" name="project[startDate]" required>
-
-    <label for="endDate">End Date</label>
-    <input type="date" id="endDate" name="project[endDate]" required>
-
-    <h2>Assign Team Members</h2>
-
-    <% if (members && members.length > 0) { %>
-      <% members.forEach(member => { %>
-        <label class="member-checkbox">
-          <input type="checkbox" name="members" value="<%= member._id %>"
-            <%= typeof project !== 'undefined' && project.members?.some(m => m._id.toString() === member._id.toString()) ? 'checked' : '' %>>
-          <%= member.name %> (<%= member.email %>)
-        </label>
-      <% }) %>
-    <% } else { %>
-      <p style="color: #666; margin: 1rem 0;">
-        <strong>No team members registered yet.</strong>
-      </p>
+    <% if (success_msg) { %>
+      <div class="message success"><%= success_msg %></div>
+    <% } %>
+    <% if (error_msg) { %>
+      <div class="message error"><%= error_msg %></div>
     <% } %>
 
-    <p style="margin: 1.5rem 0 0.5rem; font-weight: bold;">
-      Want to add more people?
-      <a href="/members/new?returnTo=<%= encodeURIComponent(typeof project !== 'undefined' ? '/projects/' + project._id + '/edit' : '/projects/new') %>"
-        style="color: #007bff; text-decoration: underline; margin-left: 0.5rem;">
-        Register new team member →
-      </a>
-    </p>
+    <form action="/projects" method="POST">
 
-    <div class="actions">
-      <button type="submit">Create Project</button>
-      <a href="/projects">Cancel / Back to List</a>
-    </div>
+      <label for="name">Project Name</label>
+      <input type="text" id="name" name="project[name]" required placeholder="e.g. Website Redesign 2026">
 
-  </form>
+      <label for="description">Description</label>
+      <textarea id="description" name="project[description]" required placeholder="Describe the project goals, scope, requirements..."></textarea>
+
+      <label for="price">Price (€)</label>
+      <input type="number" id="price" name="project[price]" step="0.01" min="0" required placeholder="e.g. 4500.00">
+
+      <label for="completedJobs">Completed Jobs / Progress So Far</label>
+      <textarea id="completedJobs" name="project[completedJobs]" placeholder="Describe what has been done so far (e.g. 'Planning completed, design approved, first sprint in progress')"></textarea>
+
+      <label for="startDate">Start Date</label>
+      <input type="date" id="startDate" name="project[startDate]" required>
+
+      <label for="endDate">End Date</label>
+      <input type="date" id="endDate" name="project[endDate]" required>
+
+      <h2>Assign Team Members</h2>
+      <% if (members && members.length > 0) { %>
+        <% members.forEach(user => { %>
+          <label class="member-checkbox">
+            <input type="checkbox" name="members" value="<%= user._id %>">
+            <%= user.username %>
+          </label>
+        <% }) %>
+      <% } else { %>
+        <p style="color: #666; font-style: italic;">
+          No users registered yet.
+        </p>
+      <% } %>
+
+      <div style="margin-top: 2rem;">
+        <button type="submit">Create Project</button>
+        <a href="/projects" class="cancel">Cancel</a>
+      </div>
+    </form>
+  </div>
 
 </body>
 </html>

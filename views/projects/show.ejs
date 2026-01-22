@@ -4,54 +4,124 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Project Details - <%= project.name %></title>
-  <link rel="stylesheet" href="/stylesheets/style.css"> 
+  <link rel="stylesheet" href="/stylesheets/style.css">
   <style>
-    body { font-family: Arial, sans-serif; margin: 2rem; max-width: 900px; }
-    h1 { color: #2c3e50; }
-    .info { margin: 1.5rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; }
-    .label { font-weight: bold; color: #555; }
-    ul { list-style: none; padding: 0; }
-    ul li { margin: 0.5rem 0; padding: 0.5rem; background: #e9ecef; border-radius: 4px; }
-    .actions a, .actions button {
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f8f9fa;
+      color: #333;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+    .info {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    .label {
+      font-weight: bold;
+      color: #495057;
+      display: block;
+      margin-top: 1rem;
+    }
+    .progress-box {
+      background: #e9ecef;
+      padding: 1rem;
+      border-radius: 6px;
+      min-height: 80px;
+      white-space: pre-wrap;
+      margin-top: 0.5rem;
+    }
+    .members-list {
+      list-style: none;
+      padding: 0;
+    }
+    .members-list li {
+      padding: 0.8rem;
+      background: #f1f3f5;
+      margin: 0.5rem 0;
+      border-radius: 4px;
+    }
+    .actions a {
       padding: 10px 20px;
       margin-right: 1rem;
       text-decoration: none;
       border-radius: 6px;
       color: white;
+      font-weight: bold;
     }
-    .edit-btn { background: #ffc107; color: black; }
+    .edit-btn { background: #ffc107; color: #212529; }
+    .edit-btn:hover { background: #e0a800; }
     .back-btn { background: #6c757d; }
+    .back-btn:hover { background: #5a6268; }
+    .message {
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 6px;
+    }
+    .success { background: #d4edda; color: #155724; }
+    .error   { background: #f8d7da; color: #721c24; }
   </style>
 </head>
 <body>
 
-  <h1><%= project.name %></h1>
+  <%- include('../partials/header') %>
 
-  <div class="info">
-    <p><span class="label">Description:</span><br><%= project.description || 'No description provided' %></p>
-    
-    <p><span class="label">Price:</span> <%= project.price %> €</p>
-    <p><strong>Completed Jobs / Progress:</strong><br>
-    <%= project.completedJobs || 'No progress description yet' %></p>
-    
-    <p><span class="label">Start date:</span> <%= project.startDate ? new Date(project.startDate).toLocaleDateString() : 'Not set' %></p>
-    <p><span class="label">End date:</span> <%= project.endDate ? new Date(project.endDate).toLocaleDateString() : 'Not set' %></p>
-  </div>
+  <div class="container">
+    <h1><%= project.name %></h1>
 
-  <h2>Assigned Team Members</h2>
-  <% if (project.members && project.members.length > 0) { %>
-    <ul>
-      <% project.members.forEach(member => { %>
-        <li><%= member.name %> (<%= member.email %>)</li>
-      <% }) %>
-    </ul>
-  <% } else { %>
-    <p style="color: #888; font-style: italic;">No team members assigned to this project yet.</p>
-  <% } %>
+    <% if (success_msg) { %>
+      <div class="message success"><%= success_msg %></div>
+    <% } %>
+    <% if (error_msg) { %>
+      <div class="message error"><%= error_msg %></div>
+    <% } %>
 
-  <div class="actions" style="margin-top: 2.5rem;">
-    <a href="/projects/<%= project._id %>/edit" class="edit-btn">Edit Project</a>
-    <a href="/projects" class="back-btn">Back to All Projects</a>
+    <div class="info">
+      <span class="label">Description</span>
+      <p><%= project.description || 'No description provided' %></p>
+
+      <span class="label">Price</span>
+      <p><%= project.price.toFixed(2) %> €</p>
+
+      <span class="label">Completed Jobs / Progress</span>
+      <div class="progress-box">
+        <%= project.completedJobs || 'No progress description yet' %>
+      </div>
+
+      <span class="label">Start Date</span>
+      <p><%= project.startDate ? new Date(project.startDate).toLocaleDateString('hr-HR') : 'Not set' %></p>
+
+      <span class="label">End Date</span>
+      <p><%= project.endDate ? new Date(project.endDate).toLocaleDateString('hr-HR') : 'Not set' %></p>
+    </div>
+
+      <h2>Team Members</h2>
+      <% if (project.members && project.members.length > 0) { %>
+        <ul class="members-list">
+          <% project.members.forEach(user => { %>
+            <li><%= user.username %></li>
+          <% }) %>
+        </ul>
+      <% } else { %>
+        <p style="color: #666; font-style: italic;">No members assigned yet.</p>
+      <% } %>
+
+
+    <div style="margin-top: 2.5rem;">
+      <a href="/projects/<%= project._id %>/edit" class="actions edit-btn">Edit Project</a>
+      <a href="/projects" class="actions back-btn">Back to List</a>
+    </div>
   </div>
 
 </body>

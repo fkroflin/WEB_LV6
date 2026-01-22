@@ -3,63 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register New Team Member</title>
-  <link rel="stylesheet" href="/stylesheets/style.css"> <!-- if you have global styles -->
-  <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      margin: 2rem; 
-      max-width: 600px; 
-    }
-    h1 { color: #2c3e50; }
-    label { display: block; margin: 1.5rem 0 0.5rem; font-weight: bold; }
-    input { 
-      width: 100%; 
-      padding: 10px; 
-      border: 1px solid #ccc; 
-      border-radius: 6px; 
-      box-sizing: border-box; 
-    }
-    .actions { 
-      margin-top: 2.5rem; 
-    }
-    button { 
-      padding: 12px 28px; 
-      background: #28a745; 
-      color: white; 
-      border: none; 
-      border-radius: 6px; 
-      font-size: 1.1rem; 
-      cursor: pointer; 
-    }
-    a { 
-      padding: 12px 28px; 
-      background: #6c757d; 
-      color: white; 
-      text-decoration: none; 
-      border-radius: 6px; 
-      margin-left: 1rem; 
-    }
-  </style>
+  <title>New Member</title>
 </head>
 <body>
+  <%- include('../partials/header') %>
 
-  <h1>Register New Team Member</h1>
-
+  <h1>Add New Member</h1>
   <form action="/members" method="POST">
-
-    <label for="name">Full Name</label>
-    <input type="text" id="name" name="member[name]" required placeholder="e.g. Ana Horvat">
-
-    <label for="email">Email Address</label>
-    <input type="email" id="email" name="member[email]" required placeholder="e.g. ana.horvat@example.com">
-    
-    <div class="actions">
-      <button type="submit">Register Member</button>
-      <a href="/projects/new">Back to Create Project</a>
-    </div>
-
+    <button type="submit">Create</button>
   </form>
-
 </body>
 </html>

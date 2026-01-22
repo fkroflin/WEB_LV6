@@ -1,14 +1,19 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-    <p>
-      <a href="/projects">Go to My Projects →</a>
-    </p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+</head>
+<body>
+  <%- include('partials/header') %>  <!-- NEW: Navbar -->
+
+  <h1>Welcome to Projects App</h1>
+  <p>Navigate using the bar above.</p>
+  <% if (user) { %>
+    <p>You are logged in. Go to <a href="/projects">Projects</a>.</p>
+  <% } else { %>
+    <p>Please <a href="/auth/login">login</a> or <a href="/auth/register">register</a>.</p>
+  <% } %>
+</body>
 </html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects I Lead</title>
+<link rel="stylesheet" href="/stylesheets/style.css">
+<style>
+  body { font-family: Arial, sans-serif; background: #f8f9fa; color: #333; margin: 0; }
+  .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+  h1 { color: #2c3e50; margin-bottom: 1.5rem; }
+  .project-list { list-style: none; padding: 0; }
+  .project-list li { background: white; margin-bottom: 1rem; padding: 1rem; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+  a.button { padding: 8px 16px; background: #28a745; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; }
+  a.button:hover { background: #218838; }
+</style>
+</head>
+<body>
+
+<%- include('../partials/header') %>
+
+<div class="container">
+  <h1>Projects I Lead</h1>
+  <a href="/projects/new" class="button">+ Create New Project</a>
+  <ul class="project-list">
+    <% if (projects && projects.length > 0) { %>
+      <% projects.forEach(project => { %>
+        <li>
+          <div>
+            <strong><%= project.name %></strong><br>
+            Members: <%= project.members.length %>
+          </div>
+          <div>
+            <a href="/projects/<%= project._id %>" class="button" style="background:#007bff;">Details</a>
+            <a href="/projects/<%= project._id %>/edit" class="button" style="background:#ffc107; color:#212529;">Edit</a>
+          </div>
+        </li>
+      <% }) %>
+    <% } else { %>
+      <p>No projects you lead yet.</p>
+    <% } %>
+  </ul>
+</div>
+
+</body>
+</html>
